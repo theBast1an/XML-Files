@@ -13,7 +13,7 @@ def getFiles():
     # Ergebnis Rückgabe
     return xml_files
 
-def parse_xml_tree(element, filename):
+def parse_xml_tree(element, filename, parent=None):
     # 
     # Initiiere leere Liste "result"
     result = []
@@ -32,12 +32,20 @@ def parse_xml_tree(element, filename):
             value = wert_child.text.strip()
         elif child.text:
             value = child.text.strip()
-        # Die Liste "result" wird mit den Tags und den Werten gefüllt, außerdem wird der Filename als extra Spalte ausgegeben.
+        # Die Liste "result" wird mit den Tags und den Werten gefüllt, außerdem wird der Filename und Parent als extra Spalte ausgegeben.
         # Das erleichtert die Identifizierung in der Excel File später.
-        result.append({'tag': tag_name, 'value': value, 'filename': filename})
+        # Aktuelle Datei -> filename
+        # Oberpunkt des aktuellen Tags -> parent
+        # Aktuelle Tags -> tag_name
+        # Wert des aktuellen Tags -> value
+        result.append({'filename': filename, 'parent': parent, 'tag': tag_name, 'value': value})
         
         if len(child) > 0 and wert_child is None:
-            result.extend(parse_xml_tree(child, filename))
+            # Falls das aktuelle Tag ein child hat oder wert_child ist nicht None, dann wird es an das result angehängt
+            # Unterpunkt des aktuellen Tags -> child
+            # Aktuelle Datei -> filename
+            # Aktuelles Tag -> parent
+            result.extend(parse_xml_tree(child, filename, parent=tag_name))
     # Ergebnis Rückgabe
     return result
 
@@ -58,11 +66,10 @@ def getXML():
         result_list = parse_xml_tree(root, filename)
         # Speichert das Ergebnis der Funktion parse_xml_tree in der Liste "all_results"
         all_results.extend(result_list)
-
     # Die Liste "all_results" wird in ein DateFrame überführt
     df = pd.DataFrame(all_results)
     # Ergebnis Rückgabe
     return df
 
-result_df = main()
-result_df.to_excel("output.xlsx")
+#result_df = main()
+#result_df.to_excel("output.xlsx")
