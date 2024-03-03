@@ -71,5 +71,5 @@ def getXML():
     # Ergebnis Rückgabe
     return df
 
-#result_df = main()
+#result_df = getXML()
 #result_df.to_excel("output.xlsx")
